@@ -4,14 +4,29 @@ let runner;
 const canvas = document.getElementById('frame');
 const ctx = canvas.getContext('2d');
 const svg = document.getElementById('svg');
+const originalPreview = document.getElementById('original-preview');
+const comparisonControl = document.getElementById('comparison-control');
+const comparisonSlider = document.getElementById('comparison-slider');
+const canvasContainer = document.getElementById('canvas-container');
 const img = new Image();
 const progress = document.getElementById('progressbar');
 const progressregion = document.getElementById('progressregion');
 let mode = 'spline', clustering_mode = 'color', clustering_hierarchical = 'stacked';
 
-// Hide canas and svg on load
+// Hide converter layers until an image is loaded.
 canvas.style.display = 'none';
 svg.style.display = 'none';
+originalPreview.style.display = 'none';
+
+function setComparisonPosition(value) {
+    const position = Math.max(0, Math.min(100, Number(value)));
+    canvasContainer.style.setProperty('--compare-position', `${position}%`);
+    comparisonSlider.value = position;
+}
+
+comparisonSlider.addEventListener('input', function () {
+    setComparisonPosition(this.value);
+});
 
 // Paste from clipboard
 document.addEventListener('paste', function (e) {
@@ -367,14 +382,20 @@ function setSourceAndRestart(source) {
         canvas.height = img.naturalHeight;
         // POMPUI owns the responsive preview geometry. Keep the converter's
         // intrinsic image dimensions, but do not inject legacy layout sizing.
-        const canvasContainer = document.getElementById('canvas-container');
         canvasContainer.style.removeProperty('width');
         canvasContainer.style.removeProperty('margin-bottom');
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+        // Keep an untouched source layer for the before/after comparison.
+        originalPreview.src = img.src;
+        originalPreview.style.display = 'block';
+        comparisonControl.hidden = false;
+        setComparisonPosition(50);
+
         restart();
     }
-    // Show display
+    // Show converter output
     canvas.style.display = 'block';
     svg.style.display = 'block';
     // Hide upload text
@@ -445,13 +466,10 @@ class ConverterRunner {
                 BinaryImageConverter.new_with_string(converter_params);
         this.converter.init();
         this.stopped = false;
-        if (clustering_mode == 'binary') {
-            svg.style.background = '#fff';
-            canvas.style.display = 'none';
-        } else {
-            svg.style.background = '';
-            canvas.style.display = '';
-        }
+        // Keep the SVG transparent so the POMPUI preview surface remains visible
+        // and the comparison can reveal the untouched original underneath.
+        svg.style.background = '';
+        canvas.style.display = clustering_mode == 'binary' ? 'none' : '';
         canvas.style.opacity = '';
     }
 
