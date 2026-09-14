@@ -226,6 +226,36 @@
                         </div>
                     </section>
 
+                    <section class="control-group color-lab" id="color-lab" aria-labelledby="color-lab-title">
+                        <div class="control-group__title">
+                            <div><p class="controls__eyebrow">Color Lab</p><h2 id="color-lab-title">OKLCH-Layer</h2></div>
+                            <span class="control-group__hint">Farbpfad</span>
+                        </div>
+                        <p class="color-lab__intro">SVG-Farblayer werden nach ihrem OKLCH-Farbwinkel sortiert. Wähle die Layer aus, die gemeinsam einem Farbpfad folgen sollen.</p>
+                        <div class="color-lab__selection-actions">
+                            <button class="button button--compact" id="color-lab-select-all" type="button">Alle</button>
+                            <button class="button button--compact" id="color-lab-select-none" type="button">Keine</button>
+                            <span id="color-lab-status" class="color-lab__status" aria-live="polite">Noch keine SVG-Farblayer</span>
+                        </div>
+                        <div id="color-lab-empty" class="color-lab__empty">Nach der Vektorisierung erscheinen hier die verwendeten Farblayer.</div>
+                        <div id="color-lab-layers" class="color-lab__layers" aria-label="SVG-Farblayer" hidden></div>
+                        <div class="color-lab__ramp">
+                            <div id="color-lab-ramp-preview" class="color-lab__ramp-preview" aria-hidden="true"></div>
+                            <div class="color-lab__color-pair">
+                                <label class="color-lab__color-field"><span>Start</span><input id="color-lab-start" type="color" value="#3ec6b8"></label>
+                                <span class="color-lab__arrow" aria-hidden="true">→</span>
+                                <label class="color-lab__color-field"><span>Ende</span><input id="color-lab-end" type="color" value="#7857d6"></label>
+                            </div>
+                            <label class="color-lab__route"><span>Hue-Pfad</span><select id="color-lab-route">
+                                <option value="shorter">Kürzester Weg</option><option value="longer">Längster Weg</option><option value="increasing">Aufsteigend</option><option value="decreasing">Absteigend</option>
+                            </select></label>
+                            <div class="color-lab__actions">
+                                <button class="button button--primary button--compact" id="color-lab-apply" type="button">OKLCH-Pfad anwenden</button>
+                                <button class="button button--compact" id="color-lab-reset" type="button">Originalfarben</button>
+                            </div>
+                        </div>
+                    </section>
+
                     <div class="controls__footer">
                         <p class="controls__note">Änderungen werden nach dem Laden eines Bildes direkt neu berechnet.</p>
                     </div>
