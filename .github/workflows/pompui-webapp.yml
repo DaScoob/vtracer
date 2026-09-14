@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - feature/pompui-ui
+      - feature/oklch-color-lab
+      - pompui
   workflow_dispatch:
 
 permissions:
