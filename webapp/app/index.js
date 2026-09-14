@@ -365,13 +365,11 @@ function setSourceAndRestart(source) {
         svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
         canvas.width = img.naturalWidth;
         canvas.height = img.naturalHeight;
-        if (height > width) {
-            document.getElementById('canvas-container').style.width = '50%';
-            document.getElementById('canvas-container').style.marginBottom = (height / width * 50) + '%';
-        } else {
-            document.getElementById('canvas-container').style.width = '';
-            document.getElementById('canvas-container').style.marginBottom = (height / width * 100) + '%';
-        }
+        // POMPUI owns the responsive preview geometry. Keep the converter's
+        // intrinsic image dimensions, but do not inject legacy layout sizing.
+        const canvasContainer = document.getElementById('canvas-container');
+        canvasContainer.style.removeProperty('width');
+        canvasContainer.style.removeProperty('margin-bottom');
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         ctx.getImageData(0, 0, canvas.width, canvas.height);
         restart();

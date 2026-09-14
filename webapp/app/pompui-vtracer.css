@@ -445,14 +445,23 @@ a { color: inherit; }
 
 #frame, #svg {
     position: absolute;
-    inset: 0;
+    top: 50%;
+    left: 50%;
     display: block;
+    margin: 0 !important;
+    transform: translate(-50%, -50%);
+}
+#frame {
+    width: auto !important;
+    height: auto !important;
+    max-width: 100%;
+    max-height: 100%;
+}
+#svg {
     width: 100% !important;
     height: 100% !important;
-    margin: 0 !important;
+    overflow: visible;
 }
-#frame { object-fit: contain; }
-#svg { overflow: visible; }
 
 .preview-footer {
     display: flex;
