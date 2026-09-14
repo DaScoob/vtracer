@@ -88,8 +88,30 @@
                                         <p>oder mit <strong>Strg/Cmd+V</strong> einfügen bzw. <a href="#" id="imageSelect">Datei auswählen</a></p>
                                     </div>
                                 </div>
+                                <img id="original-preview" alt="" aria-hidden="true">
                                 <canvas id="frame"></canvas>
                                 <svg id="svg" version="1.1" xmlns="http://www.w3.org/2000/svg"></svg>
+                                <div id="comparison-control" class="comparison-control" hidden>
+                                    <span class="comparison-label comparison-label--original">Original</span>
+                                    <span class="comparison-label comparison-label--vector">SVG</span>
+                                    <div class="comparison-divider" aria-hidden="true">
+                                        <span class="comparison-handle">
+                                            <svg viewBox="0 0 24 24">
+                                                <path d="m9 8-4 4 4 4M15 8l4 4-4 4"/>
+                                            </svg>
+                                        </span>
+                                    </div>
+                                    <input
+                                        id="comparison-slider"
+                                        class="comparison-slider"
+                                        type="range"
+                                        min="0"
+                                        max="100"
+                                        value="50"
+                                        step="1"
+                                        aria-label="Original und SVG vergleichen"
+                                    >
+                                </div>
                             </div>
                         </div>
 
