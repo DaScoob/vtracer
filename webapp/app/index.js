@@ -1,4 +1,5 @@
 import { BinaryImageConverter, ColorImageConverter } from 'vtracer';
+import { ColorLab } from './color-lab.js';
 
 let runner;
 const canvas = document.getElementById('frame');
@@ -11,6 +12,7 @@ const canvasContainer = document.getElementById('canvas-container');
 const img = new Image();
 const progress = document.getElementById('progressbar');
 const progressregion = document.getElementById('progressregion');
+const colorLab = new ColorLab(svg);
 let mode = 'spline', clustering_mode = 'color', clustering_hierarchical = 'stacked';
 
 // Hide converter layers until an image is loaded.
@@ -425,6 +427,7 @@ function restart() {
     if (!img.src) {
         return;
     }
+    colorLab.setBusy(true);
     while (svg.firstChild) {
         svg.removeChild(svg.firstChild);
     }
@@ -491,6 +494,9 @@ class ConverterRunner {
                 if (progress.value >= progress.max) {
                     progressregion.style.display = 'none';
                     progress.value = 0;
+                }
+                if (done) {
+                    colorLab.refresh();
                 }
                 if (!done) {
                     setTimeout(tick, 1);
