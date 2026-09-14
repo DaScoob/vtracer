@@ -21,6 +21,7 @@ COPY webapp/app/package.json webapp/app/package-lock.json* ./app/
 COPY webapp/app/webpack.config.js \
      webapp/app/bootstrap.js \
      webapp/app/index.js \
+     webapp/app/color-lab.js \
      webapp/app/index.html \
      webapp/app/pompui-vtracer.css \
      ./app/
