@@ -1,205 +1,243 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <title>VTracer</title>
-        <link rel="apple-touch-icon" sizes="192x192" href="./assets/apple-icon.png">
-        <link rel="icon" type="image/png" sizes="192x192"  href="./assets/apple-icon.png">
-        <style>
-        html, body {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-        }
-        .button {
-            cursor: pointer;
-            font-family: sans-serif;
-            border-radius: 2px;
-            border: 1px solid #aaa;
-            padding: 4px 8px;
-        }
-        #droptext {
-            border: 2px dashed #000;
-        }
-        #droptext.hovering {
-            border: 2px dashed #fff;
-        }
-        #canvas-container {
-            position: absolute;
-            left: 2.5%;
-            top: 5%;
-            width: 95%;
-            height: 90%;
-        }
-        #svg, #frame {
-            position: absolute;
-            width: 100%;
-            margin-bottom: 50px;
-        }
-        #svg > path:hover {
-            stroke: #ff0;
-        }
-        #droptext {
-            height: 100%;
-            text-align: center;
-        }
-        #options {
-            position: absolute;
-            left: 2.5%;
-            top: 5%;
-            padding: 50px;
-            background: rgba(255,255,255,0.5);
-        }
-        </style>
-    </head>
+<html lang="de" data-color-mode="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark light">
+    <title>VTracer · POMPUI</title>
+    <link rel="apple-touch-icon" sizes="192x192" href="./assets/apple-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="./assets/apple-icon.png">
+    <link rel="stylesheet" href="./pompui-vtracer.css">
+    <script>
+        (() => {
+            try {
+                const saved = localStorage.getItem("pompui-vtracer-color-mode");
+                const preferred = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+                document.documentElement.dataset.colorMode = saved === "light" || saved === "dark" ? saved : preferred;
+            } catch (_) {}
+        })();
+    </script>
+</head>
+<body>
+    <a class="skip-link" href="#workspace">Zum Arbeitsbereich</a>
 
-    <body>
-        <input type="file" id="imageInput" accept="image/*" style="display: none;">
-        <div>
-            <div id="progressregion" style="display: none;">
-                <progress id="progressbar" value="0" max="100" style="width: 98%;"></progress>
+    <div class="scene" aria-hidden="true">
+        <div class="scene__wash"></div>
+        <div class="scene__orb scene__orb--primary"></div>
+        <div class="scene__orb scene__orb--secondary"></div>
+        <div class="scene__grid"></div>
+        <div class="scene__grain"></div>
+    </div>
+
+    <div class="app">
+        <a class="ai-note" href="https://pompui.de/impressum" title="Diese Seite wurde mit Unterstützung von KI erstellt">✳ Mit KI erstellt</a>
+
+        <header class="topbar">
+            <div class="brand">
+                <a class="brand__home" href="https://pompui.de/" aria-label="Zur POMPUI-Startseite">
+                    <span class="brand__mark" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M12 3 4.5 7.2v9.6L12 21l7.5-4.2V7.2L12 3Z"/><path d="m8.1 9.1 3.9 2.2 3.9-2.2M12 11.3V16"/></svg>
+                    </span>
+                    <span>POMPUI</span>
+                </a>
+                <span class="brand__divider" aria-hidden="true">/</span>
+                <span class="brand__product">VTracer</span>
             </div>
-            <div>
-                <div id="drop">
-                    <div id="canvas-container">
-                        <div id="droptext">
-                            <p>Drag an image here or <a href="#" id="imageSelect">Select file</a></p>
+
+            <div class="topbar__actions">
+                <a class="button topbar__github" href="https://github.com/visioncortex/vtracer" target="_blank" rel="noreferrer">GitHub</a>
+                <button class="theme-toggle" type="button" data-theme-toggle aria-label="Farbschema wechseln" title="Farbschema wechseln">
+                    <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"/></svg>
+                    <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 15.2A8.4 8.4 0 0 1 8.8 3.5 8.5 8.5 0 1 0 20.5 15.2Z"/></svg>
+                </button>
+                <a class="button button--primary" id="export">SVG herunterladen</a>
+            </div>
+        </header>
+
+        <main class="workspace" id="workspace">
+            <div class="workspace__intro">
+                <div>
+                    <p class="workspace__eyebrow">Raster → Vektor</p>
+                    <h1>VTracer</h1>
+                    <p>PNG, JPG und andere Rasterbilder direkt im Browser in skalierbare SVG-Grafiken umwandeln.</p>
+                </div>
+            </div>
+
+            <input class="file-input" type="file" id="imageInput" accept="image/*">
+
+            <div class="workspace-grid">
+                <div class="work-column">
+                    <section class="panel preview-panel" aria-labelledby="preview-title">
+                        <div class="panel__header">
+                            <h2 id="preview-title">Vorschau</h2>
+                            <span class="panel__meta">Drag & Drop · Einfügen · Datei</span>
                         </div>
-                        <canvas id="frame"></canvas>
-                        <svg id="svg" version="1.1" xmlns="http://www.w3.org/2000/svg"></svg>
-                    </div>
+
+                        <div id="progressregion" style="display: none;">
+                            <progress id="progressbar" value="0" max="100"></progress>
+                        </div>
+
+                        <div id="drop">
+                            <div id="canvas-container">
+                                <div id="droptext">
+                                    <div class="drop-prompt">
+                                        <span class="drop-prompt__icon" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24"><path d="M12 16V4M7.5 8.5 12 4l4.5 4.5"/><path d="M5 14v4.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V14"/></svg>
+                                        </span>
+                                        <strong>Bild hier ablegen</strong>
+                                        <p>oder mit <strong>Strg/Cmd+V</strong> einfügen bzw. <a href="#" id="imageSelect">Datei auswählen</a></p>
+                                    </div>
+                                </div>
+                                <canvas id="frame"></canvas>
+                                <svg id="svg" version="1.1" xmlns="http://www.w3.org/2000/svg"></svg>
+                            </div>
+                        </div>
+
+                        <div class="preview-footer">
+                            <span class="preview-footer__local"><span class="preview-footer__dot" aria-hidden="true"></span>Verarbeitung lokal im Browser</span>
+                            <span>VTracer WebAssembly</span>
+                        </div>
+                    </section>
+
+                    <section class="panel samples-panel" aria-labelledby="samples-title">
+                        <div class="panel__header">
+                            <h2 id="samples-title">Beispiele</h2>
+                            <span class="panel__meta">Zum Testen auswählen</span>
+                        </div>
+                        <ul id="galleryslider" aria-label="VTracer-Beispielbilder"></ul>
+                        <details class="credits">
+                            <summary>Bildnachweise</summary>
+                            <div id="credits-modal-content"></div>
+                        </details>
+                    </section>
                 </div>
+
+                <aside class="panel controls" id="options" aria-labelledby="options-title">
+                    <div class="controls__header">
+                        <p class="controls__eyebrow">Werkzeuge</p>
+                        <h2 id="options-title">Einstellungen</h2>
+                    </div>
+
+                    <section class="control-group" aria-labelledby="clustering-title">
+                        <div class="control-group__title">
+                            <h2 id="clustering-title">Clusterbildung</h2>
+                            <span class="control-group__hint">Pixel gruppieren</span>
+                        </div>
+
+                        <div class="segmented segmented--two" aria-label="Farbmodus">
+                            <button id="clustering-binary" type="button" title="Schwarz-Weiß-Bild">S/W</button>
+                            <button id="clustering-color" class="selected" type="button" title="Echtfarbbild">Farbe</button>
+                        </div>
+
+                        <div class="segmented segmented--two" aria-label="Ebenenmodus">
+                            <button id="clustering-cutout" type="button" title="Formen ohne Überlagerung">Ausschnitt</button>
+                            <button id="clustering-stacked" class="selected" type="button" title="Formen übereinander stapeln">Gestapelt</button>
+                        </div>
+
+                        <div class="range-control">
+                            <div class="range-control__label">
+                                <label for="filterspeckle">Störpixel-Filter <span class="range-control__hint">Bereinigung</span></label>
+                                <output id="filterspecklevalue" for="filterspeckle">4</output>
+                            </div>
+                            <input id="filterspeckle" type="range" min="1" max="16" step="1" value="4">
+                        </div>
+
+                        <div class="range-control clustering-color-options">
+                            <div class="range-control__label">
+                                <label for="colorprecision">Farbpräzision <span class="range-control__hint">genauer</span></label>
+                                <output id="colorprecisionvalue" for="colorprecision">6</output>
+                            </div>
+                            <input id="colorprecision" type="range" min="1" max="8" step="1" value="6">
+                        </div>
+
+                        <div class="range-control clustering-color-options">
+                            <div class="range-control__label">
+                                <label for="layerdifference">Gradientenschritt <span class="range-control__hint">weniger Ebenen</span></label>
+                                <output id="layerdifferencevalue" for="layerdifference">16</output>
+                            </div>
+                            <input id="layerdifference" type="range" min="0" max="255" step="1" value="16">
+                        </div>
+                    </section>
+
+                    <section class="control-group" aria-labelledby="curve-title">
+                        <div class="control-group__title">
+                            <h2 id="curve-title">Kurvenanpassung</h2>
+                            <span class="control-group__hint">Kontur glätten</span>
+                        </div>
+
+                        <div class="segmented segmented--three" aria-label="Kurvenmodus">
+                            <button id="none" type="button" title="Exakte Clustergrenze">Pixel</button>
+                            <button id="polygon" type="button" title="Als Polygon vereinfachen">Polygon</button>
+                            <button id="spline" class="selected" type="button" title="Glätten und als Kurve anpassen">Spline</button>
+                        </div>
+
+                        <div class="range-control spline-options">
+                            <div class="range-control__label">
+                                <label for="corner">Eckenschwelle <span class="range-control__hint">glatter</span></label>
+                                <output id="cornervalue" for="corner">60</output>
+                            </div>
+                            <input id="corner" type="range" min="0" max="180" step="1" value="60">
+                        </div>
+
+                        <div class="range-control spline-options">
+                            <div class="range-control__label">
+                                <label for="length">Segmentlänge <span class="range-control__hint">gröber</span></label>
+                                <output id="lengthvalue" for="length">4</output>
+                            </div>
+                            <input id="length" type="range" min="3.5" max="10" step="0.5" value="4">
+                        </div>
+
+                        <div class="range-control spline-options">
+                            <div class="range-control__label">
+                                <label for="splice">Trennschwelle <span class="range-control__hint">genauer</span></label>
+                                <output id="splicevalue" for="splice">45</output>
+                            </div>
+                            <input id="splice" type="range" min="0" max="180" step="1" value="45">
+                        </div>
+
+                        <div class="visually-hidden-settings" aria-hidden="true">
+                            <div class="range-control spline-options">
+                                <div class="range-control__label">
+                                    <label for="pathprecision">Pfadpräzision</label>
+                                    <output id="pathprecisionvalue" for="pathprecision">8</output>
+                                </div>
+                                <input id="pathprecision" type="range" min="0" max="16" step="1" value="8">
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="controls__footer">
+                        <p class="controls__note">Änderungen werden nach dem Laden eines Bildes direkt neu berechnet.</p>
+                    </div>
+                </aside>
             </div>
-            <div id="options">
-                <div>
-                    <a class="button" id="export">Download as SVG</a>    
-                </div>
+        </main>
 
-                <p></p>
+        <a class="home-chip" href="https://pompui.de/" aria-label="Zur POMPUI-Startseite">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 11 8-7 8 7v8a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1Z"/></svg>
+            Home
+        </a>
+    </div>
 
-                <div>
-                    <div title="Algorithm for segmentation and grouping of pixel clusters">
-                        Clustering
-                    </div>
-                </div>
+    <script src="./bootstrap.js"></script>
+    <script>
+        (() => {
+            const root = document.documentElement;
+            const toggle = document.querySelector("[data-theme-toggle]");
+            if (!toggle) return;
 
-                <div>
-                    <div>
-                        <button id="clustering-binary" title="Black & White (Binary Image)">B/W</button>
-                        <button id="clustering-color" title="True Color Image">Color</button>
-                    </div>
-                </div>
+            const setMode = (mode) => {
+                root.dataset.colorMode = mode;
+                toggle.setAttribute("aria-label", mode === "light" ? "Dunkles Farbschema aktivieren" : "Helles Farbschema aktivieren");
+                try { localStorage.setItem("pompui-vtracer-color-mode", mode); } catch (_) {}
+            };
 
-                <div>
-                    <div>
-                        <button id="clustering-cutout" title="Shapes disjoint with others">Cutout</button>
-                        <button id="clustering-stacked" title="Stack shapes on top of another">Stacked</button>
-                    </div>
-                </div>
+            toggle.addEventListener("click", () => {
+                setMode(root.dataset.colorMode === "light" ? "dark" : "light");
+            });
 
-                <div>
-                    <div title="Discard patches small than X px in size">
-                        Filter Speckle <span>(Cleaner)</span>
-                    </div>
-                </div>
-                <div id="filterspecklevalue">
-                    4
-                </div>
-                <div>
-                    <input id="filterspeckle" type="range" min="1" max="16" step="1" value="4">
-                </div>
-
-                <div class="clustering-color-options">
-                    <div title="Number of significant bits to use in a RGB channel">
-                        Color Precision <span>(More accurate)</span>
-                    </div>
-                </div>
-                <div id="colorprecisionvalue" class="clustering-color-options">
-                    6
-                </div>
-                <div class="clustering-color-options">
-                    <input id="colorprecision" type="range" min="1" max="8" step="1" value="6">
-                </div>
-
-                <div class="clustering-color-options">
-                    <div title="Color difference between gradient layers">
-                        Gradient Step <span>(Less layers)</span>
-                    </div>
-                </div>
-                <div id="layerdifferencevalue" class="clustering-color-options">
-                    16
-                </div>
-                <div class="clustering-color-options">
-                    <input id="layerdifference" type="range" min="0" max="255" step="1" value="16">
-                </div>
-
-                <p></p>
-
-                <div>
-                    <div title="Algorithm for converting clusters to shapes">
-                        Curve Fitting
-                    </div>
-                </div>
-
-                <div>
-                    <div>
-                        <button id="none" title="Exact cluster boundary">Pixel</button>
-                        <button id="polygon" title="Simplify to Polygon">Polygon</button>
-                        <button id="spline" class="selected" title="Smooth and Curve-fit">Spline</button>
-                    </div>
-                </div>
-
-                <div class="spline-options">
-                    <div title="Minimum Momentary Angle (in degrees) to be considered a corner (to be kept after smoothing)">
-                        Corner Threshold <span>(Smoother)</span>
-                    </div>
-                </div>
-                <div id="cornervalue" class="spline-options">
-                    60
-                </div>
-                <div class="spline-options">
-                    <input id="corner" type="range" min="0" max="180" step="1" value="60">
-                </div>
-
-                <div class="spline-options">
-                    <div title="Perform Iterative Subdivide Smooth until all segments are shorter than this length">
-                        Segment Length <span>(More coarse)</span>
-                    </div>
-                </div>
-                <div id="lengthvalue" class="spline-options">
-                    4
-                </div>
-                <div class="spline-options">
-                    <input id="length" type="range" min="3.5" max="10" step="0.5" value="4">
-                </div>
-
-                <div class="spline-options">
-                    <div title="Minimum Angle Displacement (in degrees) to be considered a cutting point between curves">
-                        Splice Threshold <span>(More accurate)</span>
-                    </div>
-                </div>
-                <div id="splicevalue" class="spline-options">
-                    45
-                </div>
-                <div class="spline-options">
-                    <input id="splice" type="range" min="0" max="180" step="1" value="45">
-                </div>
-                
-                <div style="display: none">
-                <div class="spline-options">
-                    <div title="Number of decimal places used in svg path string">
-                        Path Precision <span>(More digits)</span>
-                    </div>
-                </div>
-                <div id="pathprecisionvalue" class="spline-options">
-                    8
-                </div>
-                <div class="spline-options">
-                    <input id="pathprecision" class="uk-range" type="range" min="0" max="16" step="1" value="8">
-                </div>
-                </div>
-            </div>
-        </div>
-        <script src="./bootstrap.js"></script>
-    </body>
+            setMode(root.dataset.colorMode === "light" ? "light" : "dark");
+        })();
+    </script>
+</body>
 </html>
