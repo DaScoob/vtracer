@@ -15,6 +15,7 @@
     "wasm"
   ],
   "dependencies": {
+    "culori": "4.0.2",
     "vtracer": "file:../pkg",
     "webpack": "^5.101.0"
   },
